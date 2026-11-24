@@ -1,0 +1,4 @@
+# Copy this file to local.properties (git-ignored) and fill in your credentials.
+# Never commit real passwords.
+user.email=
+user.password=

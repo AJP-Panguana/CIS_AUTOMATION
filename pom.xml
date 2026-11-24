@@ -4,35 +4,55 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.maximo</groupId>
-    <artifactId>maximo_cis_testes</artifactId>
+    <groupId>mz.co.maximo</groupId>
+    <artifactId>cis-automation</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <name>CIS Automation</name>
+    <description>Selenium front-end test framework for the CIS web application</description>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <selenium.version>4.43.0</selenium.version>
+        <testng.version>7.12.0</testng.version>
+        <surefire.version>3.5.2</surefire.version>
+
+        <!-- Defaults; override with -Dsuite=smoke -Denv=uat -->
+        <suite>regression</suite>
+        <env>qa</env>
     </properties>
 
-
     <dependencies>
-        <!-- Source: https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-java -->
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-java</artifactId>
-            <version>4.43.0</version>
-            <scope>compile</scope>
+            <version>${selenium.version}</version>
         </dependency>
 
-        <!-- Source: https://mvnrepository.com/artifact/org.testng/testng -->
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>7.12.0</version>
+            <version>${testng.version}</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
-
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${surefire.version}</version>
+                <configuration>
+                    <suiteXmlFiles>
+                        <suiteXmlFile>src/test/resources/suites/${suite}.xml</suiteXmlFile>
+                    </suiteXmlFiles>
+                    <systemPropertyVariables>
+                        <env>${env}</env>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

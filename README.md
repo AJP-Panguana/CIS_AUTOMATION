@@ -58,21 +58,22 @@ O **CIS Automation** é um projeto de testes automatizados *end-to-end* para a i
 
 ```
 src
-├── main/resources
-│   ├── config.properties          # Configuração geral
-│   ├── environments/              # qa / uat / prod
-│   ├── testdata/                  # users, products, claims (JSON)
-│   └── testng.xml                 # Suite de testes
-└── test/java
-    ├── base/                      # BaseTest: abre e fecha o navegador
-    ├── com/maximo/automation/pages/   # Page Objects por módulo
-    ├── co/mz/maximo/tests/            # Testes por módulo
-    ├── config/                    # Gestão de configuração
-    ├── dataproviders/             # Dados para testes parametrizados
-    ├── drivers/                   # Criação do WebDriver
-    ├── listeners/                 # Listeners do TestNG (relatórios)
-    ├── models/                    # Modelos de dados (ex.: User)
-    └── utils/                     # Waits, screenshots, JSON, Excel
+├── main/java/mz/co/maximo/cis/          # ⚙️ FRAMEWORK (o motor, reutilizável)
+│   ├── core/config/                     # ConfigManager: ambientes e credenciais
+│   ├── core/driver/                     # DriverFactory: criação do WebDriver
+│   ├── pages/                           # Page Objects (base, auth, common, por módulo)
+│   ├── models/                          # Modelos de dados (ex.: User)
+│   └── utils/                           # Waits, screenshots, JSON, Excel
+└── test
+    ├── java/mz/co/maximo/cis/           # 🧪 TESTES (usam o motor)
+    │   ├── base/                        # BaseTest: abre e fecha o navegador
+    │   ├── tests/                       # Testes por módulo
+    │   ├── dataproviders/               # Dados para testes parametrizados
+    │   └── listeners/                   # Listeners do TestNG
+    └── resources/
+        ├── config/                      # config.properties + environments/ (qa, uat, prod)
+        ├── testdata/                    # users, products, claims (JSON)
+        └── suites/                      # smoke.xml, regression.xml
 ```
 
 ### Como executar (versão Java)
@@ -82,7 +83,14 @@ src
 ```bash
 git clone https://github.com/AJP-Panguana/CIS_AUTOMATION.git
 cd CIS_AUTOMATION
-mvn clean test
+```
+
+**Credenciais:** copie `src/test/resources/config/local.properties.example` para `local.properties` (que o git ignora) e preencha `user.email` e `user.password`. Em alternativa, use as variáveis de ambiente `CIS_USER_EMAIL` e `CIS_USER_PASSWORD`.
+
+```bash
+mvn clean test                          # regressão completa em QA
+mvn clean test -Dsuite=smoke            # só os testes smoke
+mvn clean test -Dsuite=smoke -Denv=uat  # smoke em UAT
 ```
 
 Também pode correr diretamente no IntelliJ IDEA: clique com o botão direito numa classe de teste e escolha **Run**.
@@ -91,8 +99,10 @@ Também pode correr diretamente no IntelliJ IDEA: clique com o botão direito nu
 
 - [x] Estrutura base com Page Object Model
 - [x] Page Objects e testes por módulo
-- [ ] Completar `DriverFactory` e `ConfigurationManager` (vários navegadores, modo headless)
-- [ ] Ambientes configuráveis (QA / UAT / PROD)
+- [x] Namespace único `mz.co.maximo.cis`, com o motor separado dos testes
+- [x] Suites smoke e regressão
+- [ ] Completar `DriverFactory` (vários navegadores, modo headless)
+- [x] Ambientes configuráveis (QA / UAT / PROD)
 - [ ] Relatórios de execução com screenshots em caso de falha
 - [ ] Migração completa para Python (pytest + Selenium)
 - [ ] Integração contínua (CI) com GitHub Actions
@@ -153,21 +163,22 @@ Hi QA, QC, developers, curious minds and automation enthusiasts: **you're welcom
 
 ```
 src
-├── main/resources
-│   ├── config.properties          # General configuration
-│   ├── environments/              # qa / uat / prod
-│   ├── testdata/                  # users, products, claims (JSON)
-│   └── testng.xml                 # Test suite
-└── test/java
-    ├── base/                      # BaseTest: opens and closes the browser
-    ├── com/maximo/automation/pages/   # Page Objects per module
-    ├── co/mz/maximo/tests/            # Tests per module
-    ├── config/                    # Configuration management
-    ├── dataproviders/             # Data for parameterized tests
-    ├── drivers/                   # WebDriver creation
-    ├── listeners/                 # TestNG listeners (reporting)
-    ├── models/                    # Data models (e.g. User)
-    └── utils/                     # Waits, screenshots, JSON, Excel
+├── main/java/mz/co/maximo/cis/          # ⚙️ FRAMEWORK (the engine, reusable)
+│   ├── core/config/                     # ConfigManager: environments and credentials
+│   ├── core/driver/                     # DriverFactory: WebDriver creation
+│   ├── pages/                           # Page Objects (base, auth, common, per module)
+│   ├── models/                          # Data models (e.g. User)
+│   └── utils/                           # Waits, screenshots, JSON, Excel
+└── test
+    ├── java/mz/co/maximo/cis/           # 🧪 TESTS (use the engine)
+    │   ├── base/                        # BaseTest: opens and closes the browser
+    │   ├── tests/                       # Tests per module
+    │   ├── dataproviders/               # Data for parameterized tests
+    │   └── listeners/                   # Listeners do TestNG
+    └── resources/
+        ├── config/                      # config.properties + environments/ (qa, uat, prod)
+        ├── testdata/                    # users, products, claims (JSON)
+        └── suites/                      # smoke.xml, regression.xml
 ```
 
 ### How to run (Java version)
@@ -177,7 +188,14 @@ src
 ```bash
 git clone https://github.com/AJP-Panguana/CIS_AUTOMATION.git
 cd CIS_AUTOMATION
-mvn clean test
+```
+
+**Credentials:** copy `src/test/resources/config/local.properties.example` to `local.properties` (git-ignored) and fill in `user.email` and `user.password`. Alternatively, use the `CIS_USER_EMAIL` and `CIS_USER_PASSWORD` environment variables.
+
+```bash
+mvn clean test                          # full regression on QA
+mvn clean test -Dsuite=smoke            # smoke tests only
+mvn clean test -Dsuite=smoke -Denv=uat  # smoke on UAT
 ```
 
 You can also run it straight from IntelliJ IDEA: right-click a test class and choose **Run**.
@@ -186,8 +204,10 @@ You can also run it straight from IntelliJ IDEA: right-click a test class and ch
 
 - [x] Base structure with Page Object Model
 - [x] Page Objects and tests per module
-- [ ] Complete `DriverFactory` and `ConfigurationManager` (multiple browsers, headless mode)
-- [ ] Configurable environments (QA / UAT / PROD)
+- [x] Single `mz.co.maximo.cis` namespace, engine separated from tests
+- [x] Smoke and regression suites
+- [ ] Complete `DriverFactory` (multiple browsers, headless mode)
+- [x] Configurable environments (QA / UAT / PROD)
 - [ ] Execution reports with screenshots on failure
 - [ ] Full migration to Python (pytest + Selenium)
 - [ ] Continuous integration (CI) with GitHub Actions
