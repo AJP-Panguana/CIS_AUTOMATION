@@ -1,0 +1,60 @@
+name: CIS Automation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: "Suite to run"
+        type: choice
+        options: [smoke, regression]
+        default: smoke
+      env:
+        description: "Environment"
+        type: choice
+        options: [qa, uat]
+        default: qa
+
+jobs:
+  # Runs on every push: makes sure the framework compiles.
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+      - name: Compile
+        run: mvn -B -q test-compile
+
+  # Runs the browser tests on demand. The CIS app is on the internal network,
+  # so this job needs a self-hosted runner inside that network.
+  e2e:
+    if: github.event_name == 'workflow_dispatch'
+    needs: build
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+      - name: Run tests
+        env:
+          CIS_USER_EMAIL: ${{ secrets.CIS_USER_EMAIL }}
+          CIS_USER_PASSWORD: ${{ secrets.CIS_USER_PASSWORD }}
+        run: mvn -B clean test -Dsuite=${{ inputs.suite }} -Denv=${{ inputs.env }} -Dheadless=true
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cis-report
+          path: |
+            target/reports/
+            target/screenshots/
+            target/logs/

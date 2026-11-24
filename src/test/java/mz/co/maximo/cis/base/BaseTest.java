@@ -1,26 +1,32 @@
 package mz.co.maximo.cis.base;
 
 import mz.co.maximo.cis.core.config.ConfigManager;
+import mz.co.maximo.cis.core.driver.DriverManager;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
-public class BaseTest {
+/**
+ * Opens a fresh browser before each test and closes it after.
+ * Each thread has its own driver, so tests can run in parallel.
+ */
+public abstract class BaseTest {
 
-    protected WebDriver driver;
-
-    @BeforeMethod
+    @BeforeMethod(alwaysRun = true)
     public void setUpDriver() {
-        driver = new ChromeDriver();
-        driver.manage().window().maximize();
-        driver.get(ConfigManager.require("base.url"));
+        DriverManager.initDriver();
+        driver().get(ConfigManager.require("base.url"));
     }
 
-    @AfterMethod
+    @AfterMethod(alwaysRun = true)
     public void tearDownDriver() {
-        /*if (driver != null){
-            driver.quit();
-        }*/
+        // keep.browser.open=true leaves the browser open for debugging.
+        if (!ConfigManager.getBoolean("keep.browser.open", false)) {
+            DriverManager.quitDriver();
+        }
+    }
+
+    protected WebDriver driver() {
+        return DriverManager.getDriver();
     }
 }

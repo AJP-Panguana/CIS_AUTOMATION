@@ -39,6 +39,7 @@ O **CIS Automation** é um projeto de testes automatizados *end-to-end* para a i
 | Java + Maven | Linguagem inicial e gestão de dependências |
 | TestNG 7.12 | Execução e organização dos testes |
 | Page Object Model (POM) | Separação entre páginas e testes |
+| Log4j2 / ExtentReports | Logs e relatório HTML |
 | JSON / Excel | Dados de teste externos |
 | Python | Linguagem alvo da migração |
 
@@ -60,7 +61,9 @@ O **CIS Automation** é um projeto de testes automatizados *end-to-end* para a i
 src
 ├── main/java/mz/co/maximo/cis/          # ⚙️ FRAMEWORK (o motor, reutilizável)
 │   ├── core/config/                     # ConfigManager: ambientes e credenciais
-│   ├── core/driver/                     # DriverFactory: criação do WebDriver
+│   ├── core/driver/                     # DriverManager (ThreadLocal), DriverFactory, BrowserType
+│   ├── core/report/                     # ExtentManager: relatório HTML
+│   ├── components/                      # Table, Modal, Toast: peças de UI reutilizáveis
 │   ├── pages/                           # Page Objects (base, auth, common, por módulo)
 │   ├── models/                          # Modelos de dados (ex.: User)
 │   └── utils/                           # Waits, screenshots, JSON, Excel
@@ -91,7 +94,10 @@ cd CIS_AUTOMATION
 mvn clean test                          # regressão completa em QA
 mvn clean test -Dsuite=smoke            # só os testes smoke
 mvn clean test -Dsuite=smoke -Denv=uat  # smoke em UAT
+mvn clean test -Dbrowser=firefox -Dheadless=true
 ```
+
+**Resultados:** relatório HTML em `target/reports/cis-report.html`, screenshots das falhas em `target/screenshots/` e logs em `target/logs/`.
 
 Também pode correr diretamente no IntelliJ IDEA: clique com o botão direito numa classe de teste e escolha **Run**.
 
@@ -101,11 +107,12 @@ Também pode correr diretamente no IntelliJ IDEA: clique com o botão direito nu
 - [x] Page Objects e testes por módulo
 - [x] Namespace único `mz.co.maximo.cis`, com o motor separado dos testes
 - [x] Suites smoke e regressão
-- [ ] Completar `DriverFactory` (vários navegadores, modo headless)
+- [x] `DriverManager` thread-safe: execução em paralelo, Chrome / Firefox / Edge, modo headless
 - [x] Ambientes configuráveis (QA / UAT / PROD)
-- [ ] Relatórios de execução com screenshots em caso de falha
+- [x] `BasePage` completa e componentes reutilizáveis (Table, Modal, Toast)
+- [x] Logging (Log4j2) e relatório HTML (ExtentReports) com screenshot em cada falha
 - [ ] Migração completa para Python (pytest + Selenium)
-- [ ] Integração contínua (CI) com GitHub Actions
+- [x] CI com GitHub Actions (compilação em cada push; testes E2E a pedido)
 
 ### Contacto
 
@@ -144,6 +151,7 @@ Hi QA, QC, developers, curious minds and automation enthusiasts: **you're welcom
 | Java + Maven | Initial language and dependency management |
 | TestNG 7.12 | Test execution and organization |
 | Page Object Model (POM) | Keeps pages and tests separate |
+| Log4j2 / ExtentReports | Logs and HTML report |
 | JSON / Excel | External test data |
 | Python | Migration target language |
 
@@ -165,7 +173,9 @@ Hi QA, QC, developers, curious minds and automation enthusiasts: **you're welcom
 src
 ├── main/java/mz/co/maximo/cis/          # ⚙️ FRAMEWORK (the engine, reusable)
 │   ├── core/config/                     # ConfigManager: environments and credentials
-│   ├── core/driver/                     # DriverFactory: WebDriver creation
+│   ├── core/driver/                     # DriverManager (ThreadLocal), DriverFactory, BrowserType
+│   ├── core/report/                     # ExtentManager: HTML report
+│   ├── components/                      # Table, Modal, Toast: reusable UI pieces
 │   ├── pages/                           # Page Objects (base, auth, common, per module)
 │   ├── models/                          # Data models (e.g. User)
 │   └── utils/                           # Waits, screenshots, JSON, Excel
@@ -196,7 +206,10 @@ cd CIS_AUTOMATION
 mvn clean test                          # full regression on QA
 mvn clean test -Dsuite=smoke            # smoke tests only
 mvn clean test -Dsuite=smoke -Denv=uat  # smoke on UAT
+mvn clean test -Dbrowser=firefox -Dheadless=true
 ```
+
+**Results:** HTML report at `target/reports/cis-report.html`, failure screenshots in `target/screenshots/` and logs in `target/logs/`.
 
 You can also run it straight from IntelliJ IDEA: right-click a test class and choose **Run**.
 
@@ -206,11 +219,12 @@ You can also run it straight from IntelliJ IDEA: right-click a test class and ch
 - [x] Page Objects and tests per module
 - [x] Single `mz.co.maximo.cis` namespace, engine separated from tests
 - [x] Smoke and regression suites
-- [ ] Complete `DriverFactory` (multiple browsers, headless mode)
+- [x] Thread-safe `DriverManager`: parallel runs, Chrome / Firefox / Edge, headless mode
 - [x] Configurable environments (QA / UAT / PROD)
-- [ ] Execution reports with screenshots on failure
+- [x] Full `BasePage` and reusable components (Table, Modal, Toast)
+- [x] Logging (Log4j2) and HTML report (ExtentReports) with a screenshot on every failure
 - [ ] Full migration to Python (pytest + Selenium)
-- [ ] Continuous integration (CI) with GitHub Actions
+- [x] CI with GitHub Actions (compile on every push; E2E tests on demand)
 
 ### Contact
 

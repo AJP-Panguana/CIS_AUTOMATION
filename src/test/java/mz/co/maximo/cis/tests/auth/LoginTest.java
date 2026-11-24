@@ -8,13 +8,13 @@ import org.testng.annotations.Test;
 
 public class LoginTest extends BaseTest {
 
-    @Test(groups = {"smoke", "regression"})
+    @Test(groups = {"smoke", "regression"}, description = "User logs in with valid credentials")
     public void loginWithValidCredentials() {
-        LoginPage loginPage = new LoginPage(driver);
+        LoginPage loginPage = new LoginPage(driver());
 
         loginPage.login(ConfigManager.require("user.email"),
                 ConfigManager.require("user.password"));
 
-        Assert.assertEquals(driver.getTitle(), " Max Sure");
+        Assert.assertEquals(loginPage.getTitle(), " Max Sure");
     }
 }

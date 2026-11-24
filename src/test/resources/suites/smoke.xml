@@ -1,5 +1,8 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
-<suite name="CIS - Smoke">
+<suite name="CIS - Smoke" parallel="classes" thread-count="3">
+    <listeners>
+        <listener class-name="mz.co.maximo.cis.listeners.TestListener"/>
+    </listeners>
     <test name="Smoke">
         <groups>
             <run><include name="smoke"/></run>

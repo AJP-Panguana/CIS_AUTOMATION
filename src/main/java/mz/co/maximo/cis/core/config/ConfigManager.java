@@ -39,6 +39,16 @@ public final class ConfigManager {
         return value == null || value.isBlank() ? defaultValue : value;
     }
 
+    public static int getInt(String key, int defaultValue) {
+        String value = get(key);
+        return value == null || value.isBlank() ? defaultValue : Integer.parseInt(value.trim());
+    }
+
+    public static boolean getBoolean(String key, boolean defaultValue) {
+        String value = get(key);
+        return value == null || value.isBlank() ? defaultValue : Boolean.parseBoolean(value.trim());
+    }
+
     public static String require(String key) {
         String value = get(key);
         if (value == null || value.isBlank()) {
