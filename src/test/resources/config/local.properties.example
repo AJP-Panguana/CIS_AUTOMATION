@@ -1,4 +1,16 @@
 # Copy this file to local.properties (git-ignored) and fill in your credentials.
 # Never commit real passwords.
+
+# Single-user tests (LoginTest)
 user.email=
 user.password=
+
+# Multi-user workflows: one block per role (users.<role>.email / .password)
+users.comercial.email=
+users.comercial.password=
+
+users.supervisor.email=
+users.supervisor.password=
+
+users.financeiro.email=
+users.financeiro.password=

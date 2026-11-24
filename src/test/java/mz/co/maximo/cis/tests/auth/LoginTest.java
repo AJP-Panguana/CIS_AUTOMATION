@@ -15,6 +15,7 @@ public class LoginTest extends BaseTest {
         loginPage.login(ConfigManager.require("user.email"),
                 ConfigManager.require("user.password"));
 
-        Assert.assertEquals(loginPage.getTitle(), " Max Sure");
+        Assert.assertTrue(loginPage.isLoggedIn(),
+                "Expected to leave the sign-in page after login, but URL is " + loginPage.getCurrentUrl());
     }
 }

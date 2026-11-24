@@ -9,7 +9,7 @@ on:
       suite:
         description: "Suite to run"
         type: choice
-        options: [smoke, regression]
+        options: [smoke, regression, e2e]
         default: smoke
       env:
         description: "Environment"

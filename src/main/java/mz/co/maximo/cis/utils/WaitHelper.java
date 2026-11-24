@@ -42,6 +42,10 @@ public class WaitHelper {
         return wait.until(ExpectedConditions.urlContains(fragment));
     }
 
+    public boolean urlNotContains(String fragment) {
+        return wait.until(ExpectedConditions.not(ExpectedConditions.urlContains(fragment)));
+    }
+
     public boolean titleIs(String title) {
         return wait.until(ExpectedConditions.titleIs(title));
     }

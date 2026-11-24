@@ -1,34 +1,20 @@
 package mz.co.maximo.cis.core.driver;
 
-import mz.co.maximo.cis.core.config.ConfigManager;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 
-import java.time.Duration;
-
 /**
- * Holds one WebDriver per thread, so tests can run in parallel safely.
+ * Holds one WebDriver per thread for single-user tests (see BaseTest).
+ * Multi-user scenarios use SessionManager instead.
  */
 public final class DriverManager {
 
-    private static final Logger LOG = LogManager.getLogger(DriverManager.class);
     private static final ThreadLocal<WebDriver> DRIVER = new ThreadLocal<>();
 
     private DriverManager() {
     }
 
     public static void initDriver() {
-        BrowserType browser = BrowserType.from(ConfigManager.get("browser", "chrome"));
-        boolean headless = ConfigManager.getBoolean("headless", false);
-        LOG.info("Starting {} (headless={})", browser, headless);
-
-        WebDriver driver = DriverFactory.create(browser, headless);
-        driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(ConfigManager.getInt("page.load.timeout.seconds", 60)));
-        if (!headless) {
-            driver.manage().window().maximize();
-        }
-        DRIVER.set(driver);
+        DRIVER.set(DriverFactory.create());
     }
 
     public static WebDriver getDriver() {

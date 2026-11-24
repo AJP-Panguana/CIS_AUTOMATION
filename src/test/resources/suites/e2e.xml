@@ -1,0 +1,15 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<!-- Multi-user workflows. Each scenario opens several browsers, so keep thread-count low. -->
+<suite name="CIS - E2E Workflows" parallel="classes" thread-count="2">
+    <listeners>
+        <listener class-name="mz.co.maximo.cis.listeners.TestListener"/>
+    </listeners>
+    <test name="E2E">
+        <groups>
+            <run><include name="e2e"/></run>
+        </groups>
+        <packages>
+            <package name="mz.co.maximo.cis.tests.*"/>
+        </packages>
+    </test>
+</suite>

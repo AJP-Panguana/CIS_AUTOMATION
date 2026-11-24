@@ -63,6 +63,7 @@ src
 │   ├── core/config/                     # ConfigManager: ambientes e credenciais
 │   ├── core/driver/                     # DriverManager (ThreadLocal), DriverFactory, BrowserType
 │   ├── core/report/                     # ExtentManager: relatório HTML
+│   ├── core/session/                    # Actor, SessionManager, ScenarioContext: vários utilizadores
 │   ├── components/                      # Table, Modal, Toast: peças de UI reutilizáveis
 │   ├── pages/                           # Page Objects (base, auth, common, por módulo)
 │   ├── models/                          # Modelos de dados (ex.: User)
@@ -76,7 +77,7 @@ src
     └── resources/
         ├── config/                      # config.properties + environments/ (qa, uat, prod)
         ├── testdata/                    # users, products, claims (JSON)
-        └── suites/                      # smoke.xml, regression.xml
+        └── suites/                      # smoke.xml, regression.xml, e2e.xml
 ```
 
 ### Como executar (versão Java)
@@ -101,6 +102,25 @@ mvn clean test -Dbrowser=firefox -Dheadless=true
 
 Também pode correr diretamente no IntelliJ IDEA: clique com o botão direito numa classe de teste e escolha **Run**.
 
+### Cenários com vários utilizadores (workflows)
+
+Processos reais passam por várias pessoas: o comercial cria o cliente, o supervisor aprova, o financeiro analisa e o comercial continua. Cada **ator** tem o seu próprio navegador, que fica aberto e com login feito durante todo o cenário. Os dados que passam de um ator para o outro (ex.: `clienteId`) ficam no `ScenarioContext`, e cada ator abre o registo diretamente por esse ID. No fim do cenário todos os navegadores fecham, mesmo que o teste falhe, e em caso de falha há um screenshot de cada ator no relatório.
+
+```java
+Actor comercial  = sessions.open("comercial",  BrowserType.CHROME,  "comercial");
+Actor financeiro = sessions.open("financeiro", BrowserType.FIREFOX, "financeiro");
+
+context.put("clienteId", comercial.step("Cria cliente").on(ClientesPage.class).criar(dados));
+financeiro.step("Aprova").on(FinanceiroPage.class).aprovar(context.get("clienteId"));
+comercial.step("Continua").on(ClientesPage.class).abrir(context.get("clienteId"));
+```
+
+As credenciais de cada perfil ficam em `local.properties` (`users.<perfil>.email` / `users.<perfil>.password`).
+
+**Selenium Grid:** `docker compose up -d` e depois `mvn clean test -Dsuite=e2e -Dgrid.url=http://localhost:4444`.
+
+> O Opera Mini não é suportado pelo Selenium (é um navegador móvel com renderização no servidor). Para testes em telemóvel, usar Appium.
+
 ### Roadmap
 
 - [x] Estrutura base com Page Object Model
@@ -112,6 +132,7 @@ Também pode correr diretamente no IntelliJ IDEA: clique com o botão direito nu
 - [x] `BasePage` completa e componentes reutilizáveis (Table, Modal, Toast)
 - [x] Logging (Log4j2) e relatório HTML (ExtentReports) com screenshot em cada falha
 - [ ] Migração completa para Python (pytest + Selenium)
+- [x] Cenários multi-utilizador (Actor, SessionManager, ScenarioContext) e Selenium Grid
 - [x] CI com GitHub Actions (compilação em cada push; testes E2E a pedido)
 
 ### Contacto
@@ -175,6 +196,7 @@ src
 │   ├── core/config/                     # ConfigManager: environments and credentials
 │   ├── core/driver/                     # DriverManager (ThreadLocal), DriverFactory, BrowserType
 │   ├── core/report/                     # ExtentManager: HTML report
+│   ├── core/session/                    # Actor, SessionManager, ScenarioContext: multi-user
 │   ├── components/                      # Table, Modal, Toast: reusable UI pieces
 │   ├── pages/                           # Page Objects (base, auth, common, per module)
 │   ├── models/                          # Data models (e.g. User)
@@ -188,7 +210,7 @@ src
     └── resources/
         ├── config/                      # config.properties + environments/ (qa, uat, prod)
         ├── testdata/                    # users, products, claims (JSON)
-        └── suites/                      # smoke.xml, regression.xml
+        └── suites/                      # smoke.xml, regression.xml, e2e.xml
 ```
 
 ### How to run (Java version)
@@ -213,6 +235,25 @@ mvn clean test -Dbrowser=firefox -Dheadless=true
 
 You can also run it straight from IntelliJ IDEA: right-click a test class and choose **Run**.
 
+### Multi-user scenarios (workflows)
+
+Real processes go through several people: sales creates the client, a supervisor approves, finance reviews, and sales carries on. Each **actor** has their own browser, kept open and logged in for the whole scenario. Data handed between actors (e.g. `clienteId`) lives in `ScenarioContext`, and each actor opens the record directly by that id. All browsers close at the end of the scenario, even when it fails, and on failure the report has one screenshot per actor.
+
+```java
+Actor comercial  = sessions.open("comercial",  BrowserType.CHROME,  "comercial");
+Actor financeiro = sessions.open("financeiro", BrowserType.FIREFOX, "financeiro");
+
+context.put("clienteId", comercial.step("Create client").on(ClientesPage.class).criar(dados));
+financeiro.step("Approve").on(FinanceiroPage.class).aprovar(context.get("clienteId"));
+comercial.step("Continue").on(ClientesPage.class).abrir(context.get("clienteId"));
+```
+
+Credentials per role go in `local.properties` (`users.<role>.email` / `users.<role>.password`).
+
+**Selenium Grid:** `docker compose up -d`, then `mvn clean test -Dsuite=e2e -Dgrid.url=http://localhost:4444`.
+
+> Opera Mini is not supported by Selenium (it is a mobile browser that renders on Opera's servers). For mobile testing, use Appium.
+
 ### Roadmap
 
 - [x] Base structure with Page Object Model
@@ -224,6 +265,7 @@ You can also run it straight from IntelliJ IDEA: right-click a test class and ch
 - [x] Full `BasePage` and reusable components (Table, Modal, Toast)
 - [x] Logging (Log4j2) and HTML report (ExtentReports) with a screenshot on every failure
 - [ ] Full migration to Python (pytest + Selenium)
+- [x] Multi-user scenarios (Actor, SessionManager, ScenarioContext) and Selenium Grid
 - [x] CI with GitHub Actions (compile on every push; E2E tests on demand)
 
 ### Contact

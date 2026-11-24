@@ -4,9 +4,12 @@ import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.MediaEntityBuilder;
 import mz.co.maximo.cis.core.driver.DriverManager;
 import mz.co.maximo.cis.core.report.ExtentManager;
+import mz.co.maximo.cis.core.session.Actor;
+import mz.co.maximo.cis.core.session.SessionManager;
 import mz.co.maximo.cis.utils.ScreenshotUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.WebDriver;
 import org.testng.ITestContext;
 import org.testng.ITestListener;
 import org.testng.ITestResult;
@@ -40,17 +43,28 @@ public class TestListener implements ITestListener {
         ExtentTest test = ExtentManager.current();
         test.fail(result.getThrowable());
 
-        if (DriverManager.hasDriver()) {
-            try {
-                ScreenshotUtils.save(DriverManager.getDriver(), result.getMethod().getMethodName());
-                test.fail("Screenshot at failure",
-                        MediaEntityBuilder.createScreenCaptureFromBase64String(
-                                ScreenshotUtils.base64(DriverManager.getDriver())).build());
-            } catch (RuntimeException e) {
-                LOG.warn("Could not capture screenshot: {}", e.getMessage());
+        String method = result.getMethod().getMethodName();
+        SessionManager sessions = SessionManager.current();
+        if (sessions != null && !sessions.all().isEmpty()) {
+            // Multi-user scenario: one screenshot per actor, so you see every screen at the moment of failure.
+            for (Actor actor : sessions.all()) {
+                attachScreenshot(test, actor.driver(), method + "_" + actor.name(),
+                        "Screenshot - " + actor.name() + " (" + actor.browser() + ")");
             }
+        } else if (DriverManager.hasDriver()) {
+            attachScreenshot(test, DriverManager.getDriver(), method, "Screenshot at failure");
         }
         ExtentManager.end();
+    }
+
+    private static void attachScreenshot(ExtentTest test, WebDriver driver, String fileName, String title) {
+        try {
+            ScreenshotUtils.save(driver, fileName);
+            test.fail(title, MediaEntityBuilder.createScreenCaptureFromBase64String(
+                    ScreenshotUtils.base64(driver)).build());
+        } catch (RuntimeException e) {
+            LOG.warn("Could not capture screenshot '{}': {}", fileName, e.getMessage());
+        }
     }
 
     @Override
